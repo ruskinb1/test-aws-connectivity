@@ -19,8 +19,9 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const runId = core.getInput('run_id');
+            const runId = inputs.run_id;  // ✅ Correct way
             const artifactName = `text-artifact-${runId}`;
+
             const response = await github.rest.actions.listWorkflowRunArtifacts({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -34,16 +35,3 @@ jobs:
             }
 
             core.setOutput('artifact_url', artifact.archive_download_url);
-
-      - name: Download artifact zip
-        run: |
-          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" ^
-               -H "Accept: application/vnd.github+json" ^
-               "${{ steps.get-artifact.outputs.artifact_url }}" ^
-               -o artifact.zip
-
-      - name: Unzip artifact
-        run: Expand-Archive -Path artifact.zip -DestinationPath artifact
-
-      - name: Read file content
-        run: type artifact\data.txt
