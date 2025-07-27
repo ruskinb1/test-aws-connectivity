@@ -1,19 +1,49 @@
-name: Consume Artifact
+name: Consume Artifact from Specific Run
 
 on:
   workflow_dispatch:
+    inputs:
+      run_id:
+        description: "Run ID of the workflow to fetch artifact from"
+        required: true
+        type: string
 
 jobs:
   download:
     runs-on: windows-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Download artifact
-        uses: actions/download-artifact@v4
+      - name: Fetch artifact download URL from run ID
+        id: get-artifact
+        uses: actions/github-script@v7
         with:
-          name: text-artifact
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const runId = core.getInput('run_id');
+            const artifactName = `text-artifact-${runId}`;
+            const response = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId
+            });
 
-      - name: Show contents of the file
-        run: type data.txt
+            const artifact = response.data.artifacts.find(a => a.name === artifactName);
+            if (!artifact) {
+              core.setFailed(`Artifact ${artifactName} not found for run ID ${runId}`);
+              return;
+            }
+
+            core.setOutput('artifact_url', artifact.archive_download_url);
+
+      - name: Download artifact zip
+        run: |
+          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" ^
+               -H "Accept: application/vnd.github+json" ^
+               "${{ steps.get-artifact.outputs.artifact_url }}" ^
+               -o artifact.zip
+
+      - name: Unzip artifact
+        run: Expand-Archive -Path artifact.zip -DestinationPath artifact
+
+      - name: Read file content
+        run: type artifact\data.txt
