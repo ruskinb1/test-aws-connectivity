@@ -5,7 +5,7 @@ on:
     inputs:
       run_id:
         description: "Run ID of the workflow to fetch artifact from"
-        required: true
+        required: false
         type: string
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const runId = inputs.run_id;  // ✅ Correct way
+            const runId = '16551601587'
             const artifactName = `text-artifact-${runId}`;
 
             const response = await github.rest.actions.listWorkflowRunArtifacts({
