@@ -15,6 +15,4 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4
       with:
-        name: text-artifact-16563056435
-        github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
-        run-id: 16563056435
+        artifact-ids: 3627012139
