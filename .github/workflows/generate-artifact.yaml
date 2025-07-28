@@ -15,7 +15,11 @@ jobs:
           echo "This was created in run ID: ${{ github.run_id }}" > data.txt
 
       - name: Upload artifact with run_id in name
+        id: artifact-upload-step
         uses: actions/upload-artifact@v4
         with:
           name: text-artifact-${{ github.run_id }}
           path: data.txt
+
+      - name: Output artifact ID
+        run:  echo 'Artifact ID is ${{ steps.artifact-upload-step.outputs.artifact-id }}'
