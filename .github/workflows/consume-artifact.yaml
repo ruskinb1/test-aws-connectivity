@@ -13,23 +13,15 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Get run ID of "Generate Artifact" workflow
-        id: get-run-id
-        run: |
-          OTHER_REPO="${{ github.repository }}"
-          WF_NAME="Generate Artifact"
-          RUN_ID=`gh run --repo ${OTHER_REPO} list --workflow ${WF_NAME} --json databaseId --jq .[0].databaseId`
-          echo "Detected latest run id of ${RUN_ID} for workflow ${WF_NAME}"
-          echo "run-id=${RUN_ID}" >> "$GITHUB_OUTPUT"
-        env:
-          GH_TOKEN: ${{ github.token }}
       - name: Download artifact from "Test" workflow
         uses: actions/download-artifact@v4
         with:
-          name: text-artifact-16563056435 # Match name used in test.yml upload artifact step
+          name: 'text-artifact-16563056435' # Match name used in test.yml upload artifact step
           github-token: ${{ github.token }}
-          repository: ${{ github.repository }}
-          run-id: ${{ steps.get-run-id.outputs.run-id }}
+          repository: 'ruskinb1/test-aws-connectivity'
+          run-id: 16563056435
+        env:
+          GH_TOKEN: ${{ github.token }}
 
       - name: Show downloaded files
         run: ls -la
