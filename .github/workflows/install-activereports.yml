@@ -28,6 +28,16 @@ jobs:
           Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$msiFilePath`" /quiet /norestart" -Wait
         shell: powershell
 
+      - name: Activate GrapeCity License Manager
+        shell: pwsh  # Use PowerShell
+        env:
+          ACTIVATION_KEY: ${{ secrets.ACTIVATION_KEY }}  # Reference the secret
+        run: |
+          # Invoke the GrapeCity License Manager with activation arguments
+          Start-Process -FilePath "C:\ProgramData\GrapeCity\gclm\gclm.exe" `
+            -ArgumentList "5e0b5f44-1a6b-4aff-a007-17b9224bca83 -a $env:ACTIVATION_KEY" `
+            -NoNewWindow -Wait
+      
       # Step 4: Verify installation
       - name: Verify Installation
         run: |
