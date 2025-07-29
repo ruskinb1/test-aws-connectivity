@@ -1,0 +1,36 @@
+name: Install ActiveReports MSI
+
+on:
+  # Trigger workflow manually (you can adjust triggers as needed, e.g., `push` or `pull_request`)
+  workflow_dispatch:
+
+jobs:
+  install-activereports:
+    runs-on: windows-latest # GitHub Runner needs to be Windows to run MSI files
+
+    steps:
+      # Step 1: Checkout the code (optional, if code is used in the workflow)
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Step 2: Download the MSI file
+      - name: Download MSI file
+        run: |
+          $msiUrl = "https://cdn.grapecity.com/ActiveReports/ar16/ActiveReports-v16.4.1.msi"
+          $msiFilePath = "$env:Temp\ActiveReports-v16.4.1.msi"
+          Invoke-WebRequest -Uri $msiUrl -OutFile $msiFilePath
+
+      # Step 3: Install the MSI file silently
+      - name: Install MSI file
+        run: |
+          $msiFilePath = "$env:Temp\ActiveReports-v16.4.1.msi"
+          Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$msiFilePath`" /quiet /norestart" -Wait
+        shell: powershell
+
+      # Step 4: Verify installation (optional step)
+      - name: Verify Installation
+        run: |
+          Write-Host "Verifying installation of ActiveReports..."
+          # Replace this with a valid verification command specific to ActiveReports installation
+          Get-ChildItem "C:\Program Files (x86)\ActiveReports" | Write-Host
+        shell: powershell
