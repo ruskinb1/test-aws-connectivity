@@ -1,36 +1,58 @@
-name: Install ActiveReports MSI
+name: Install and Verify ActiveReports
 
 on:
-  # Trigger workflow manually (you can adjust triggers as needed, e.g., `push` or `pull_request`)
+  # Trigger the workflow manually via GitHub Actions UI
   workflow_dispatch:
 
 jobs:
   install-activereports:
-    runs-on: windows-latest # GitHub Runner needs to be Windows to run MSI files
+    runs-on: windows-latest # Use a Windows runner (required for MSI installation)
 
     steps:
-      # Step 1: Checkout the code (optional, if code is used in the workflow)
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      # Step 1: Setup the repository (optional, for GitHub-hosted workflows)
+      - name: Check out Repository
+        uses: actions/checkout@v3
 
-      # Step 2: Download the MSI file
-      - name: Download MSI file
+      # Step 2: Download ActiveReports MSI (Ensure MSI is available or provide a download step)
+      - name: Download ActiveReports MSI
         run: |
-          $msiUrl = "https://cdn.grapecity.com/ActiveReports/ar16/ActiveReports-v16.4.1.msi"
-          $msiFilePath = "$env:Temp\ActiveReports-v16.4.1.msi"
-          Invoke-WebRequest -Uri $msiUrl -OutFile $msiFilePath
-
-      # Step 3: Install the MSI file silently
-      - name: Install MSI file
-        run: |
-          $msiFilePath = "$env:Temp\ActiveReports-v16.4.1.msi"
-          Start-Process -FilePath msiexec.exe -ArgumentList "/i `"$msiFilePath`" /quiet /norestart" -Wait
+          Invoke-WebRequest -Uri "https://cdn.grapecity.com/ActiveReports/ar16/ActiveReports-v16.4.1.msi" -OutFile "$env:Temp\ActiveReports-v16.4.1.msi"
         shell: powershell
 
-      # Step 4: Verify installation (optional step)
-      - name: Verify Installation
+      # Step 3: Install ActiveReports using the provided PowerShell script logic
+      - name: Install ActiveReports MSI
         run: |
-          Write-Host "Verifying installation of ActiveReports..."
-          # Replace this with a valid verification command specific to ActiveReports installation
-          Get-ChildItem "C:\Program Files (x86)\ActiveReports" | Write-Host
+          try {
+              # Find the ActiveReports MSI file in the temp directory
+              $msiFile = Get-ChildItem -Path "$env:Temp" -Filter "ActiveReports*.msi" -ErrorAction SilentlyContinue | Select-Object -First 1
+
+              if ($msiFile) {
+                  $msiPath = $msiFile.FullName
+
+                  Write-Host "MSI file found: $msiPath" -ForegroundColor Green
+
+                  # Install ActiveReports MSI silently
+                  Write-Host "Installing ActiveReports MSI file..." -ForegroundColor Cyan
+                  Start-Process -FilePath "msiexec.exe" -ArgumentList "/i `$msiPath /qn" -NoNewWindow -Wait
+
+                  # Verify installation
+                  Write-Host "Verifying installation..." -ForegroundColor Cyan
+                  $software = Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*GrapeCity ActiveReports*" }
+                  if ($software) {
+                      Write-Host "ActiveReports is installed successfully!" -ForegroundColor Green
+                      $software
+                  } else {
+                      Write-Host "ActiveReports installation failed or is not installed." -ForegroundColor Red
+                      exit 1 # Exit with an error code
+                  }
+              } else {
+                  Write-Host "No ActiveReports MSI file found in the current directory." -ForegroundColor Yellow
+                  exit 1
+              }
+          }
+          catch {
+              Write-Host "An error occurred during the installation process." -ForegroundColor Red
+              Write-Host "Error: $_" -ForegroundColor Red
+              exit 1 # Exit with an error code
+          }
         shell: powershell
