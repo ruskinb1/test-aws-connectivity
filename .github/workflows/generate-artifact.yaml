@@ -10,7 +10,7 @@ on:
 
 jobs:
   generate:
-    runs-on: ${{ github.event.name == 'pull_request_target' && 'codebuild-runner' || 'windows-latest' }}
+    runs-on: ${{ github.event.name == 'pull_request_target' && 'windows-latest' || 'codebuild-runner' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
