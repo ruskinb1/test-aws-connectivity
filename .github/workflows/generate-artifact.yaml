@@ -2,17 +2,23 @@ name: Generate Artifact
 
 on:
   workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run workflow (default is main/test)'
+        required: false
+        default: 'main'
 
 jobs:
   generate:
-    runs-on: windows-latest
+    runs-on: ${{ github.event.inputs.branch == 'test' && 'ubuntu-latest' || 'windows-latest' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Create file
         run: |
-          echo "This was created in run ID: ${{ github.run_id }}" > data.txt
+          echo "Workflow triggered on branch: ${{ github.event.inputs.branch }}" > data.txt
+          echo "This was created in run ID: ${{ github.run_id }}" >> data.txt
 
       - name: Upload artifact with run_id in name
         id: artifact-upload-step
@@ -22,4 +28,4 @@ jobs:
           path: data.txt
 
       - name: Output artifact ID
-        run:  echo 'Artifact ID is ${{ steps.artifact-upload-step.outputs.artifact-id }}'
+        run: echo 'Artifact ID is ${{ steps.artifact-upload-step.outputs.artifact-id }}'
