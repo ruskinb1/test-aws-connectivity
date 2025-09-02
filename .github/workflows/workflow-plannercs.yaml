@@ -21,21 +21,5 @@ jobs:
     steps:
       # 1. Checkout the repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
-      # 2. Print selected certificate
-      - name: Display Selected Certificate
-        run: echo "Selected certificate: ${{ github.event.inputs.certificate }}"
-
-      # 3. Perform build based on certificate type
-      - name: Perform Build
-        run: |
-          if [[ "${{ github.event.inputs.certificate }}" == "TRDevDynamic" ]]; then
-            echo "Using Dev certificate for build..."
-            # Commands to process Dev certificate
-          elif [[ "${{ github.event.inputs.certificate }}" == "TRProdDynamic" ]]; then
-            echo "Using Prod certificate for build..."
-            # Commands to process Prod certificate
-          else
-            echo "Invalid certificate selection!"
-            exit 1
