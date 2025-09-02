@@ -7,7 +7,7 @@ on:
         description: "Choose the certificate for this workflow"
         required: true
         default: TRDevDynamic
-        type: string
+        type: choice
         options:
           - TRDevDynamic
           - TRProdDynamic
