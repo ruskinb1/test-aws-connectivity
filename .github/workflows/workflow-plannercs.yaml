@@ -1,0 +1,41 @@
+name: Certificate Selection Workflow
+
+on:
+  workflow_dispatch:
+    inputs:
+      certificate:
+        description: "Choose the certificate for this workflow"
+        required: true
+        type: choice
+        options:
+          - TRDevDynamic
+          - TRProdDynamic
+
+permissions: write-all
+
+jobs:
+  CertificateSelection:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 2. Print selected certificate
+      - name: Display Selected Certificate
+        run: echo "Selected certificate: ${{ inputs.certificate }}"
+
+      # 3. Perform build based on certificate type
+      - name: Perform Build
+        run: |
+          if [ "${{ inputs.certificate }}" == "TRDevDynamic" ]; then
+            echo "Using Dev certificate for build..."
+            # Add commands to trigger Dev-related build processes here
+          elif [ "${{ inputs.certificate }}" == "TRProdDynamic" ]; then
+            echo "Using Prod certificate for build..."
+            # Add commands to trigger Prod-related build processes here
+          else
+            echo "Invalid certificate input!"
+            exit 1
+          fi
