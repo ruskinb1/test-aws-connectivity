@@ -6,7 +6,8 @@ on:
       certificate:
         description: "Choose the certificate for this workflow"
         required: true
-        type: choice
+        default: TRDevDynamic
+        type: string
         options:
           - TRDevDynamic
           - TRProdDynamic
@@ -24,18 +25,17 @@ jobs:
 
       # 2. Print selected certificate
       - name: Display Selected Certificate
-        run: echo "Selected certificate: ${{ inputs.certificate }}"
+        run: echo "Selected certificate: ${{ github.event.inputs.certificate }}"
 
       # 3. Perform build based on certificate type
       - name: Perform Build
         run: |
-          if [ "${{ inputs.certificate }}" == "TRDevDynamic" ]; then
+          if [[ "${{ github.event.inputs.certificate }}" == "TRDevDynamic" ]]; then
             echo "Using Dev certificate for build..."
-            # Add commands to trigger Dev-related build processes here
-          elif [ "${{ inputs.certificate }}" == "TRProdDynamic" ]; then
+            # Commands to process Dev certificate
+          elif [[ "${{ github.event.inputs.certificate }}" == "TRProdDynamic" ]]; then
             echo "Using Prod certificate for build..."
-            # Add commands to trigger Prod-related build processes here
+            # Commands to process Prod certificate
           else
-            echo "Invalid certificate input!"
+            echo "Invalid certificate selection!"
             exit 1
-          fi
