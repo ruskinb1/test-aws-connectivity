@@ -1,0 +1,32 @@
+name: Conditionally Run Steps Based on .nuspec File Existence
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Trigger workflow manually'
+        required: false
+        default: main
+
+jobs:
+  check-and-execute:
+    name: Check for .nuspec File and Execute Steps
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout Code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Execute a Step Only If .nuspec File Exists
+      - name: Run If .nuspec File Exists
+        if: ${{ fromJSON('["${{ github.workspace }}/**/*.nuspec"]') | length > 0 }}
+        run: |
+          echo "A .nuspec file was found!"
+          ls
+
+      # Step 3: Execute a Step If No .nuspec File Exists (optional)
+      - name: Run If No .nuspec File Exists
+        if: ${{ fromJSON('["${{ github.workspace }}/**/*.nuspec"]') | length == 0 }}
+        run: |
+          echo "No .nuspec file was found. Skipping extra steps."
