@@ -1,32 +1,45 @@
-name: Conditionally Run Steps Based on .nuspec File Existence
+name: Conditionally Run Steps Based on .nuspec File (Windows)
 
 on:
   workflow_dispatch:
-    inputs:
-      branch:
-        description: 'Trigger workflow manually'
-        required: false
-        default: main
 
 jobs:
   check-and-execute:
-    name: Check for .nuspec File and Execute Steps
-    runs-on: ubuntu-latest
+    name: Check for `.nuspec` File and Execute Steps (Windows)
+    runs-on: windows-latest
 
     steps:
-      # Step 1: Checkout Code
-      - name: Checkout Repository
+      # Step 1: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      # Step 2: Execute a Step Only If .nuspec File Exists
-      - name: Run If .nuspec File Exists
-        if: ${{ fromJSON('["${{ github.workspace }}/**/*.nuspec"]') | length > 0 }}
+      # Step 2: Check for `.nuspec` File and Set Environment Variable
+      - name: Check for .nuspec File
+        shell: pwsh
+        id: check-nuspec
         run: |
-          echo "A .nuspec file was found!"
-          ls
+          # Search for *.nuspec files in all directories recursively
+          $nuspecFiles = Get-ChildItem -Path . -Filter "*.nuspec" -Recurse
+            
+          if ($nuspecFiles) {
+              Write-Host "Found nuspec files!"
+              echo "NUSPEC_FOUND=true" >> $Env:GITHUB_ENV
+          } else {
+              Write-Host "No nuspec files found."
+              echo "NUSPEC_FOUND=false" >> $Env:GITHUB_ENV
+          }
 
-      # Step 3: Execute a Step If No .nuspec File Exists (optional)
-      - name: Run If No .nuspec File Exists
-        if: ${{ fromJSON('["${{ github.workspace }}/**/*.nuspec"]') | length == 0 }}
+      # Step 3: Run If `.nuspec` File Exists
+      - name: Execute If .nuspec File Exists
+        if: env.NUSPEC_FOUND == 'true'
+        shell: pwsh
         run: |
-          echo "No .nuspec file was found. Skipping extra steps."
+          Write-Host "Executing because .nuspec file exists in the repository."
+          Get-ChildItem -Path . -Filter "*.nuspec" -Recurse
+
+      # Step 4: Optional: Run When `.nuspec` File Does Not Exist
+      - name: Execute If .nuspec File Does Not Exist
+        if: env.NUSPEC_FOUND == 'false'
+        shell: pwsh
+        run: |
+          Write-Host "No .nuspec file found. Skipping NuGet-specific processing."
