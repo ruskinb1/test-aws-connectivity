@@ -72,6 +72,7 @@ jobs:
               Write-Host "The file '$fileName' was not found in '$targetDirectory' or its subdirectories."
               "NUGET_CONFIG=$env:FALLBACK_NUGET_CONFIG" >> $env:GITHUB_ENV
               echo "::warning,title=NUGET CONFIG MISSING::Nuget Config is missing hence using the fallback nuget config"
+              echo "::warning ::NUGET CONFIG MISSING IN SOURCE CODE."
           }
           
       
