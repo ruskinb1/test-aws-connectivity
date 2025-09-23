@@ -12,6 +12,7 @@ env:
   YEAR: 'Y24'
   PRIOR_YEAR: 'Y23'
   JF_URL: 'https://tr1.jfrog.io/artifactory/'
+  FALLBACK_NUGET_CONFIG: 'C:\Users\s.ado.taxprof.1\AppData\Roamimg\nuget.config'
 
 jobs:
   check-and-execute:
@@ -56,19 +57,23 @@ jobs:
 
       - name: Check for something important
         run: |
-          $fileName = "nuget.config" # Replace with the name of the file to find
+          $fileName = "nuget.confsig" # Replace with the name of the file to find
           
           # Search for the file recursively and case-insensitively
-          $foundFiles = Get-ChildItem -Path . -Recurse -Filter $fileName
+          $foundFiles = Get-ChildItem -Path . -Filter $fileName -Recurse
           
           # Check if any files were found
           if ($foundFiles) {
               Write-Host "The file '$fileName' was found in the following locations:"
-              $foundFiles | Select-Object FullName
+              $nuget_config_path = $foundFiles | Select-Object -ExpandProperty FullName
+              "NUGET_CONFIG=$nuget_config_path" >> $env:GITHUB_ENV
+              
           } else {
               Write-Host "The file '$fileName' was not found in '$targetDirectory' or its subdirectories."
+              "NUGET_CONFIG=$env:FALLBACK_NUGET_CONFIG" >> $env:GITHUB_ENV
+              echo "::warning,title=NUGET CONFIG MISSING::Nuget Config is missing hence using the fallback nuget config"
           }
-          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."
+          
       
       - name: Setting Env Vars for Certificate signing
         id: Certificate_Signing_Variable_and_YEAR
@@ -78,7 +83,7 @@ jobs:
           if ($env:GITHUB_REF -eq "refs/head/main") {
             Write-Output "Setting the certificate to dev one" 
             "CERTIFICATE_NAME=TRDevDynamic" >> $env:GITHUB_ENV
-            "$DEV_OUTPUT_FOLDER_YEAR=$env:YEAR" >> $env:GITHUB_ENV
+            "DEV_OUTPUT_FOLDER_YEAR=$env:YEAR" >> $env:GITHUB_ENV
             } 
           elseif ($env:GITHUB_REF -eq "refs/head/$env:PRIOR_YEAR_BRANCH") {
             Write-Output "Setting the certificate to prod one"
