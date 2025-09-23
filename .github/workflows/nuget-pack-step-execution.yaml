@@ -56,9 +56,20 @@ jobs:
 
       - name: Check for something important
         run: |
-          # Your script or command that performs a check
-          # If a condition is met that warrants a warning:
-          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."
+          $fileName = "nuget.config" # Replace with the name of the file to find
+          
+          # Search for the file recursively and case-insensitively
+          $foundFiles = Get-ChildItem -Path . -Recurse -Filter $fileName
+          
+          # Check if any files were found
+          if ($foundFiles) {
+              Write-Host "The file '$fileName' was found in the following locations:"
+              $foundFiles | Select-Object FullName
+          } else {
+              Write-Host "The file '$fileName' was not found in '$targetDirectory' or its subdirectories."
+          }
+          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."'
+      
       - name: Setting Env Vars for Certificate signing
         id: Certificate_Signing_Variable_and_YEAR
         run: |
