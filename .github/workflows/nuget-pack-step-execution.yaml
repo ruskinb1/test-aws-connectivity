@@ -68,7 +68,7 @@ jobs:
           } else {
               Write-Host "The file '$fileName' was not found in '$targetDirectory' or its subdirectories."
           }
-          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."'
+          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."
       
       - name: Setting Env Vars for Certificate signing
         id: Certificate_Signing_Variable_and_YEAR
