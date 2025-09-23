@@ -54,6 +54,11 @@ jobs:
         run: |
           Write-Host "No .nuspec file found. Skipping NuGet-specific processing."
 
+      - name: Check for something important
+        run: |
+          # Your script or command that performs a check
+          # If a condition is met that warrants a warning:
+          echo "::warning file=your_file.js,line=10,col=5,endColumn=15,title=Important Check::This is a warning message about a potential issue."
       - name: Setting Env Vars for Certificate signing
         id: Certificate_Signing_Variable_and_YEAR
         run: |
