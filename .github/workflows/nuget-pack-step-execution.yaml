@@ -3,6 +3,16 @@ name: Conditionally Run Steps Based on .nuspec File (Windows)
 on:
   workflow_dispatch:
 
+env:
+  DEV_OUTPUT_PATH: '\\cisclnt-0584.int.thomsonreuters.com\tax_planner$'
+  SOURCE_PATH: ${{ github.workspace }}/WincsiRelease/UTP
+  PACKAGES_DIR: ${{ github.workspace }}/src/packages
+  ARTIFACTORY_UPLOAD_PATH: nuget-local/ThomsonReuters/Desktop/CSSuite/PlannerCS/
+  PRIOR_YEAR_BRANCH: '4277608/Consume-Latest-Shared-NuGet-from-JFrog-In-States'
+  YEAR: 'Y24'
+  PRIOR_YEAR: 'Y23'
+  JF_URL: 'https://tr1.jfrog.io/artifactory/'
+
 jobs:
   check-and-execute:
     name: Check for `.nuspec` File and Execute Steps (Windows)
@@ -43,3 +53,19 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "No .nuspec file found. Skipping NuGet-specific processing."
+
+      - name: Setting Env Vars for Certificate signing
+        id: Certificate_Signing_Variable_and_YEAR
+        run: |
+          Write-Output "This run was triggered by a `"$env:GITHUB_REF`" event."
+          Write-Output "Setting the Certificate signing if not passed as an input"
+          if ($env:GITHUB_REF -eq "refs/head/main") {
+            Write-Output "Setting the certificate to dev one" 
+            "CERTIFICATE_NAME=TRDevDynamic" >> $env:GITHUB_ENV
+            "$DEV_OUTPUT_FOLDER_YEAR=$env:YEAR" >> $env:GITHUB_ENV
+            } 
+          elseif ($env:GITHUB_REF -eq "refs/head/$env:PRIOR_YEAR_BRANCH") {
+            Write-Output "Setting the certificate to prod one"
+            "CERTIFICATE_NAME=TRProdDynamic" >> $env:GITHUB_ENV
+            "DEV_OUTPUT_FOLDER_YEAR=$env:PRIOR_YEAR" >> $env:GITHUB_ENV
+            }
