@@ -1,0 +1,19 @@
+name: Trigger Build and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      validate_only:
+        description: 'Run validation only?'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  call_build_release:
+    uses: ./.github/workflows/build-release.yaml
+    with:
+      validate_only: ${{ github.event.inputs.validate_only }}
