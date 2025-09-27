@@ -80,4 +80,3 @@ jobs:
           ZIP_NAME="${{ needs.build.outputs.zip-name }}"
           echo "Inspecting deploy zip: $ZIP_NAME"
           unzip -l "$ZIP_NAME"
-          exit 1
