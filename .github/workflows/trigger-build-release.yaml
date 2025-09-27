@@ -1,6 +1,7 @@
 name: Trigger Build and Deploy
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       validate_only:
