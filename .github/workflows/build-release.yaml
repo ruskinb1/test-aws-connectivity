@@ -2,6 +2,12 @@ name: Build and Deploy
 
 on:
   workflow_call:
+    inputs:
+      validate_only:
+        description: 'Run validation only?'
+        required: false
+        type: string
+        default: 'true'
 
 jobs:
   build:
@@ -10,14 +16,14 @@ jobs:
       zip-name: ${{ steps.set-zip.outputs.zip-name }}
       validate_only: ${{ env.validate_only }}
     env:
-      validate_only: ${{ github.event.inputs.validate_only || 'true' }}
+      validate_only: ${{ inputs.validate_only }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set validate_only environment variable (pull_request/push)
-        if: github.event_name != 'workflow_dispatch'
+        if: github.event_name != 'workflow_call'
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
             echo "validate_only=false" >> $GITHUB_ENV
