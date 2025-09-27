@@ -1,20 +1,34 @@
-name: Build and Release
+name: Build and Deploy
 
 on:
   push:
   pull_request:
   workflow_dispatch:
+    inputs:
+      validate_only:
+        description: 'Run validation only?'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     outputs:
       zip-name: ${{ steps.set-zip.outputs.zip-name }}
+      validate_only: ${{ env.validate_only }}
+    env:
+      validate_only: ${{ github.event.inputs.validate_only || 'true' }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set validate_only environment variable
+      - name: Set validate_only environment variable (pull_request/push)
+        if: github.event_name != 'workflow_dispatch'
         run: |
           if [[ "${{ github.event_name }}" == "push" ]]; then
             echo "validate_only=false" >> $GITHUB_ENV
@@ -22,7 +36,14 @@ jobs:
             echo "validate_only=true" >> $GITHUB_ENV
           fi
 
-      - name: Set zip name
+      - name: Report validate_only value
+        run: |
+          echo "validate_only is set to: $validate_only"
+          if [[ "${validate_only}" == "false" ]]; then
+            echo "The code will be build and deploy"
+          fi
+
+      - name: Set zip file name
         id: set-zip
         run: |
           ZIP_NAME="${{ github.event.repository.name }}-${{ github.run_id }}.zip"
@@ -31,7 +52,8 @@ jobs:
       - name: Create dummy zip
         run: |
           mkdir -p temp-src
-          cp -r . temp-src/
+          shopt -s dotglob
+          cp -r * temp-src/
           zip -r "${{ steps.set-zip.outputs.zip-name }}" temp-src
           ls -lh "${{ steps.set-zip.outputs.zip-name }}"
 
@@ -41,10 +63,10 @@ jobs:
           name: source-zip
           path: ${{ steps.set-zip.outputs.zip-name }}
 
-  release:
+  deploy:
     runs-on: ubuntu-latest
     needs: build
-    if: github.event_name == 'push'
+    if: needs.build.outputs.validate_only == 'false'
     steps:
       - name: Download artifact
         uses: actions/download-artifact@v4
@@ -55,5 +77,5 @@ jobs:
       - name: Inspect zip
         run: |
           ZIP_NAME="${{ needs.build.outputs.zip-name }}"
-          echo "Inspecting release zip: $ZIP_NAME"
+          echo "Inspecting deploy zip: $ZIP_NAME"
           unzip -l "$ZIP_NAME"
