@@ -1,18 +1,7 @@
 name: Build and Deploy
 
 on:
-  push:
-  pull_request:
-  workflow_dispatch:
-    inputs:
-      validate_only:
-        description: 'Run validation only?'
-        required: false
-        default: 'true'
-        type: choice
-        options:
-          - 'true'
-          - 'false'
+  workflow_call:
 
 jobs:
   build:
