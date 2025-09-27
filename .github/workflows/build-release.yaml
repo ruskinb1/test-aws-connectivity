@@ -49,12 +49,13 @@ jobs:
           ZIP_NAME="${{ github.event.repository.name }}-${{ github.run_id }}.zip"
           echo "zip-name=$ZIP_NAME" >> $GITHUB_OUTPUT
 
-      - name: Create dummy zip
+      - name: Create dummy files and zip them
         run: |
-          mkdir -p temp-src
-          shopt -s dotglob
-          cp -r * temp-src/
-          zip -r "${{ steps.set-zip.outputs.zip-name }}" temp-src
+          mkdir temp-files
+          echo "Hello from file 1" > temp-files/file1.txt
+          echo "Another dummy file" > temp-files/file2.txt
+          touch temp-files/empty.txt
+          zip -r "${{ steps.set-zip.outputs.zip-name }}" temp-files
           ls -lh "${{ steps.set-zip.outputs.zip-name }}"
 
       - name: Upload artifact
