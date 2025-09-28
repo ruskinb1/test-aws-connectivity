@@ -7,7 +7,6 @@ on:
         description: 'Run validation only?'
         required: false
         type: string
-        default: false
 
 jobs:
   build:
