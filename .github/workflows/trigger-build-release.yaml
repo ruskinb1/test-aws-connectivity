@@ -17,4 +17,4 @@ jobs:
   call_build_release:
     uses: ./.github/workflows/build-release.yaml
     with:
-      validate_only: ${{ github.event.inputs.validate_only }}
+      validate_only: ${{ github.event_name == 'pull_request' || inputs.validate_only || false }}
