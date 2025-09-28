@@ -11,6 +11,7 @@ on:
         options:
           - 'true'
           - 'false'
+        default: 'false'
 
 jobs:
   call_build_release:
