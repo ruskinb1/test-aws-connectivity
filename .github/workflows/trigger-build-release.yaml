@@ -7,7 +7,6 @@ on:
       validate_only:
         description: 'Run validation only?'
         required: false
-        default: 'true'
         type: choice
         options:
           - 'true'
