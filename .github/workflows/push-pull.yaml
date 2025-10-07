@@ -32,11 +32,19 @@ jobs:
         run: |
           robocopy src dest *.dll *.xml
           $code = $LASTEXITCODE
+          Write-Host "Robocopy exit code: $code"
           if ($code -gt 7) { exit $code }
       
           robocopy src dest\pdbs *.pdb
           $code = $LASTEXITCODE
+          Write-Host "Robocopy exit code: $code"
           if ($code -gt 7) { exit $code }
+      
+          robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
+          $code = $LASTEXITCODE
+          Write-Host "Robocopy exit code: $code"
+          if ($code -gt 7) { exit $code }
+
       
           robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
           $code = $LASTEXITCODE
