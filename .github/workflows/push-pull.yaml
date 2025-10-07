@@ -18,7 +18,6 @@ jobs:
           echo "dummy dll" > src\test.dll
           echo "dummy pdb" > src\test.pdb
           echo "dummy xml" > src\test.xml
-          echo "dummy FD0" > src\$SYSTEM\FD\demo.FD0
 
       - name: Print important GitHub variables
         run: |
