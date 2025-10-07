@@ -21,6 +21,12 @@ jobs:
           echo "dummy xml" > src\test.xml
           echo "dummy FD0" > src\$SYSTEM\FD\demo.FD0
 
+      - name: Print important GitHub variables
+        run: |
+          echo "Repository: $GITHUB_REPOSITORY"
+          echo "Full ref: $GITHUB_REF"
+          echo "Ref Name: ${{ github.ref_name }}"
+
       - name: Robocopy transfer DLL/XML to dest, PDB to pdbs, $SYSTEM/FD to wincsi/utp
         shell: pwsh
         run: |
