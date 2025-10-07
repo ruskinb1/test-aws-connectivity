@@ -1,11 +1,29 @@
-name: Example Workflow
+name: Robocopy Example
+
 on:
- push:
-   branches:
-     - '*'
+  workflow_dispatch:
+
 jobs:
- print-ref-name:
-   runs-on: ubuntu-latest
-   steps:
-     - name: Print ref name
-       run: echo "The branch or tag name is ${{ github.ref_name }}"
+  robocopy-task:
+    runs-on: windows-latest
+
+    steps:
+      - name: Create directories and test files
+        run: |
+          mkdir src\subfolder
+          mkdir src\$SYSTEM\FD
+          mkdir dest
+          mkdir dest\pdbs
+          mkdir dest\wincsi\utp
+
+          echo "dummy dll" > src\test.dll
+          echo "dummy pdb" > src\test.pdb
+          echo "dummy xml" > src\test.xml
+          echo "dummy FD0" > src\$SYSTEM\FD\demo.FD0
+
+      - name: Robocopy transfer DLL/XML to dest, PDB to pdbs, $SYSTEM/FD to wincsi/utp
+        shell: pwsh
+        run: |
+          robocopy src dest *.dll *.xml
+          robocopy src dest\pdbs *.pdb
+          robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
