@@ -31,5 +31,14 @@ jobs:
         shell: pwsh
         run: |
           robocopy src dest *.dll *.xml
+          $code = $LASTEXITCODE
+          if ($code -gt 7) { exit $code }
+      
           robocopy src dest\pdbs *.pdb
+          $code = $LASTEXITCODE
+          if ($code -gt 7) { exit $code }
+      
           robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
+          $code = $LASTEXITCODE
+          if ($code -gt 7) { exit $code }
+
