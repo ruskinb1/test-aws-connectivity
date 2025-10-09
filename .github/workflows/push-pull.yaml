@@ -24,6 +24,8 @@ jobs:
           echo "Repository: $GITHUB_REPOSITORY"
           echo "Full ref: $GITHUB_REF"
           echo "Ref Name: ${{ github.ref_name }}"
+          echo "Run Number: ${{ github.run_number }}"
+          echo "Run Attempt: ${{ github.run_attempt }}"
 
       - name: Robocopy transfer DLL/XML to dest, PDB to pdbs, $SYSTEM/FD to wincsi/utp
         shell: pwsh
