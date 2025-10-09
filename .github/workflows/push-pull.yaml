@@ -26,27 +26,11 @@ jobs:
           echo "Ref Name: ${{ github.ref_name }}"
           echo "Run Number: ${{ github.run_number }}"
           echo "Run Attempt: ${{ github.run_attempt }}"
+          echo "Run ID: ${{ github.run_id }}"
 
       - name: Robocopy transfer DLL/XML to dest, PDB to pdbs, $SYSTEM/FD to wincsi/utp
         shell: pwsh
         run: |
-          robocopy src dest *.dll *.xml
-          $code = $LASTEXITCODE
           Write-Host "Robocopy exit code: $code"
-          if ($code -gt 7) { exit $code }
-      
-          robocopy src dest\pdbs *.pdb
-          $code = $LASTEXITCODE
-          Write-Host "Robocopy exit code: $code"
-          if ($code -gt 7) { exit $code }
-      
-          robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
-          $code = $LASTEXITCODE
-          Write-Host "Robocopy exit code: $code"
-          if ($code -gt 7) { exit $code }
 
-      
-          robocopy src\$SYSTEM\FD dest\wincsi\utp *.FD0
-          $code = $LASTEXITCODE
-          if ($code -gt 7) { exit $code }
 
