@@ -1,76 +1,40 @@
-name: Build and Deploy
+name: Output Product Information
 
 on:
   workflow_call:
     inputs:
-      validate_only:
-        description: 'Run validation only?'
-        required: false
+      productName:
+        description: 'The name of the product'
+        required: true
         type: string
+      SolutionFiles:
+        description: 'The solution file for the product'
+        required: true
+        type: string
+    # Define the outputs for the entire workflow
+    outputs:
+      productName:
+        description: "The product name passed as input"
+        value: ${{ jobs.deploy.outputs.product-name-out }}
+      SolutionFiles:
+        description: "The solution file passed as input"
+        value: ${{ jobs.deploy.outputs.solution-file-out }}
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    outputs:
-      zip-name: ${{ steps.set-zip.outputs.zip-name }}
-      validate_only: ${{ env.validate_only }}
-    env:
-      validate_only: ${{ inputs.validate_only }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set validate_only environment variable (pull_request/push)
-        if: github.event_name != 'workflow_dispatch'
-        run: |
-          if [[ "${{ github.event_name }}" == "push" ]]; then
-            echo "validate_only=false" >> $GITHUB_ENV
-          else
-            echo "validate_only=true" >> $GITHUB_ENV
-          fi
-
-      - name: Report validate_only value
-        run: |
-          echo "validate_only is set to: $validate_only"
-          if [[ "${validate_only}" == "false" ]]; then
-            echo "The code will be build and deploy"
-          fi
-
-      - name: Set zip file name
-        id: set-zip
-        run: |
-          ZIP_NAME="${{ github.event.repository.name }}-${{ github.run_id }}.zip"
-          echo "zip-name=$ZIP_NAME" >> $GITHUB_OUTPUT
-
-      - name: Create dummy files and zip them
-        run: |
-          mkdir temp-files
-          echo "Hello from file 1" > temp-files/file1.txt
-          echo "Another dummy file" > temp-files/file2.txt
-          touch temp-files/empty.txt
-          zip -r "${{ steps.set-zip.outputs.zip-name }}" temp-files
-          ls -lh "${{ steps.set-zip.outputs.zip-name }}"
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: source-zip
-          path: ${{ steps.set-zip.outputs.zip-name }}
-
   deploy:
     runs-on: ubuntu-latest
-    needs: build
-    if: needs.build.outputs.validate_only == 'false'
+    # Define the outputs for this specific job
+    outputs:
+      product-name-out: ${{ steps.set-outputs.outputs.product-name }}
+      solution-file-out: ${{ steps.set-outputs.outputs.solution-file }}
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: source-zip
-          path: .
-
-      - name: Inspect zip
+      - name: Print Product Information
         run: |
-          ZIP_NAME="${{ needs.build.outputs.zip-name }}"
-          echo "Inspecting deploy zip: $ZIP_NAME"
-          unzip -l "$ZIP_NAME"
+          echo "Processing Product: ${{ inputs.productName }}"
+          echo "Using Solution File: ${{ inputs.SolutionFiles }}"
+
+      - name: Set Outputs
+        id: set-outputs
+        run: |
+          echo "product-name=${{ inputs.productName }}" >> $GITHUB_OUTPUT
+          echo "solution-file=${{ inputs.SolutionFiles }}" >> $GITHUB_OUTPUT
