@@ -19,6 +19,9 @@ on:
       SolutionFiles:
         description: "The solution file passed as input"
         value: ${{ jobs.deploy.outputs.solution-file-out }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
