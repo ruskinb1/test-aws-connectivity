@@ -20,7 +20,7 @@ on:
         description: "The solution file passed as input"
         value: ${{ jobs.deploy.outputs.solution-file-out }}
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.productName }}
   cancel-in-progress: true
 
 jobs:
