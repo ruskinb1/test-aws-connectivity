@@ -1,5 +1,12 @@
 on:
   workflow_dispatch:
+      inputs:
+        network_path:
+          description: 'UNC path to the network share'
+          required: false
+        server_secret:
+          description: 'AWS secret name for getting domain, username and password'
+          required: false
 
 jobs:
   robocopy-task:
