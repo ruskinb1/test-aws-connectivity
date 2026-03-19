@@ -1,6 +1,7 @@
 name: Test Network Drive Composite Action
 
 on:
+  push:
   workflow_dispatch:
     inputs:
       network_path:
