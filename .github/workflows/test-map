@@ -1,0 +1,50 @@
+name: Test Network Drive Composite Action
+
+on:
+  workflow_dispatch:
+    inputs:
+      network_path:
+        description: 'UNC path to the network share'
+        required: false
+      server_secret:
+        description: 'AWS secret name for getting domain, username and password'
+        required: false
+
+jobs:
+  test-network-drive:
+    runs-on: wintool-test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'add/composite-action-establish-connectivity'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4.1.0
+        with:
+          aws-region: us-east-1
+
+      - name: Get bot token from AWS Secrets Manager
+        uses: aws-actions/aws-secretsmanager-get-secrets@v2
+        with:
+          parse-json-secrets: true
+          secret-ids: |
+            FILESHARE, ${{ github.event.inputs.server_secret || 'cre' }}
+
+      - name: Map or Test Network Drive
+        uses: ./.github/actions/map-drive
+        id: map_drive
+        with:
+          network_path: ${{ github.event.inputs.network_path || '\\wintv'}}
+          domain: ${{ env.FILESHARE_DOMAIN }}
+          username: ${{ env.FILESHARE_USERNAME }}
+          password: ${{ env.FILESHARE_PASSWORD }}
+      
+      - name: Use mapped drive letter
+        run: echo "Mapped drive letter is ${{ steps.map_drive.outputs.drive_letter }}"
+      
+      - name: Remove the Drive
+        if: always() && steps.map_drive.outputs.drive_letter
+        shell: powershell
+        run: |
+          net use ${{ steps.map_drive.outputs.drive_letter }} /delete
